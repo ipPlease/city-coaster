@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Taipei in One Ride 一趟看台北</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <style>
 html,body{margin:0;height:100%;background:#05070c;overflow:hidden;font-family:"Avenir Next","Helvetica Neue","PingFang TC","Heiti TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif;color:#fff;user-select:none;-webkit-user-select:none}
 canvas#c{position:fixed;left:0;top:0;width:100%;height:100%;display:block;cursor:grab}
@@ -30,6 +30,29 @@ canvas#c{position:fixed;left:0;top:0;width:100%;height:100%;display:block;cursor
 #load .bar{width:220px;height:1px;background:#333;margin-top:18px}#load .bar div{height:1px;width:0;background:#ffcf7a}
 #err{position:fixed;left:8px;bottom:8px;font:11px monospace;color:#ff8a8a;white-space:pre-wrap;max-width:90vw;z-index:9}
 body.hide .hud{opacity:0!important}
+html,body,canvas#c{touch-action:none;overscroll-behavior:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#bar,#fly,#ph{display:none}
+body.touch #help{display:none}
+body.touch #bar{display:flex;position:fixed;z-index:4;left:0;right:0;bottom:0;padding:6px calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));flex-wrap:wrap;justify-content:center;gap:6px;transition:opacity .5s}
+body.touch.barhide #bar{opacity:0;pointer-events:none}
+.tb{min-width:48px;height:46px;padding:0 8px;box-sizing:border-box;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(10,14,24,.55);color:#fff;font:600 12px/44px "Avenir Next","Helvetica Neue",sans-serif;letter-spacing:.08em;text-align:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tb.on{background:rgba(255,207,122,.85);color:#1a1206;border-color:#ffcf7a}
+body.touch.free #fly{display:block}
+#stk{position:fixed;z-index:4;left:calc(18px + env(safe-area-inset-left));bottom:calc(var(--bh) + 52px);width:120px;height:120px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(10,14,24,.35)}
+#stk i{position:absolute;left:36px;top:36px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.55)}
+#ud{position:fixed;z-index:4;right:calc(18px + env(safe-area-inset-right));bottom:calc(var(--bh) + 52px);display:flex;flex-direction:column;gap:10px}
+#ud .tb{width:56px;height:56px;line-height:54px;font-size:20px}
+body{--bh:calc(58px + env(safe-area-inset-bottom))}
+@media (orientation:portrait){body{--bh:calc(110px + env(safe-area-inset-bottom))}}
+body.touch #ph{display:block;position:fixed;z-index:3;left:0;right:0;bottom:calc(var(--bh) - 4px);height:44px}
+body.touch #prog{left:calc(5vw + env(safe-area-inset-left));right:calc(5vw + env(safe-area-inset-right));bottom:calc(var(--bh) + 10px)}
+body.touch #cap{left:calc(5vw + env(safe-area-inset-left));bottom:calc(var(--bh) + 44px);max-width:min(88vw,460px)}
+body.touch #cap .n{font-size:max(11px,1vw)}body.touch #cap .e{font-size:max(22px,2.5vw)}body.touch #cap .z{font-size:max(16px,1.7vw);letter-spacing:.3em}body.touch #cap .s{font-size:max(13px,1.06vw)}
+body.touch #title{top:calc(12% + env(safe-area-inset-top))}
+body.touch #title h1{font-size:max(22px,5.4vw);letter-spacing:.18em;margin-left:.18em}body.touch #title h2{font-size:max(17px,2.3vw);letter-spacing:.6em;margin-left:.6em}body.touch #title p{font-size:max(10px,1.02vw);letter-spacing:.14em;padding:0 6vw}
+body.touch #toast{top:calc(7vh + env(safe-area-inset-top));font-size:max(12px,1.05vw);letter-spacing:.12em;padding:0 5vw}
+body.touch.free #cap{display:none}
+@media (orientation:landscape) and (max-height:500px){body.touch #title{top:6%}body.touch #cap{max-width:56vw}}
 </style>
 </head>
 <body>
@@ -39,6 +62,9 @@ body.hide .hud{opacity:0!important}
 <div id="prog" class="hud"><div class="l"></div><div class="f"></div></div>
 <div id="help" class="hud">drag / click · look &nbsp; SPACE · pause &nbsp; ← → [ ] · landmark<br>V · view &nbsp; F · free flight (WASD E Q Shift) &nbsp; T · time &nbsp; M · sound &nbsp; H · hide &nbsp; 1 2 3 · quality</div>
 <div id="toast" class="hud"></div>
+<div id="ph"></div>
+<div id="fly"><div id="stk"><i></i></div><div id="ud"><div class="tb" data-h="KeyE">&#9650;</div><div class="tb" data-h="KeyQ">&#9660;</div></div></div>
+<div id="bar"><div class="tb" data-a="Space">PAUSE</div><div class="tb" data-a="ArrowLeft">&#9664;</div><div class="tb" data-a="ArrowRight">&#9654;</div><div class="tb" data-a="KeyV">VIEW</div><div class="tb" data-a="KeyF">FLY</div><div class="tb" data-a="KeyT">TIME</div><div class="tb" data-a="KeyM">SOUND</div><div class="tb" data-a="KeyH">TEXT</div><div class="tb" data-a="Q">Q1</div></div>
 <div id="load"><div>TAIPEI IN ONE RIDE</div><div class="bar"><div id="lb"></div></div></div>
 <div id="err"></div>
 <script>
@@ -1646,7 +1672,8 @@ function addPart(x, y, z, type, size, life, rise, hex, alpha, count) {
 function finishParts() { for (const g of PARTS.values()) { g.vao = gl.createVertexArray(); gl.bindVertexArray(g.vao); gl.bindBuffer(gl.ARRAY_BUFFER, glbuf(gl.ARRAY_BUFFER, new Float32Array(g.d))); for (let k = 0; k < 3; k++) { gl.enableVertexAttribArray(k); gl.vertexAttribPointer(k, 4, gl.FLOAT, false, 48, k * 16); gl.vertexAttribDivisor(k, 1); } g.d = null; partGroups.push(g); } gl.bindVertexArray(null); }
 // ---- render targets
 function resize() {
-  const Q = QUAL[R.q], dpr = window.devicePixelRatio || 1, cw = max(2, floor(canvas.clientWidth * dpr)), chh = max(2, floor(canvas.clientHeight * dpr));
+  const Q = QUAL[R.q], dpr = window.devicePixelRatio || 1; let cw = max(2, floor(canvas.clientWidth * dpr)), chh = max(2, floor(canvas.clientHeight * dpr));
+  if (R.touch) { const k = min(1, sqrt([0, 1e6, 1.7e6, 2.8e6][R.q] / (cw * chh))); cw = max(2, floor(cw * k)); chh = max(2, floor(chh * k)); }   // a phone reports 3 device px per CSS px; cap the backing store
   const sc = min(1, sqrt(Q.px / (cw * chh))); const w = max(2, floor(cw * sc) & ~1), h = max(2, floor(chh * sc) & ~1);
   if (canvas.width !== cw || canvas.height !== chh) { canvas.width = cw; canvas.height = chh; }
   if (w === R.w && h === R.h && R.qBuilt === R.q) return;
@@ -1863,17 +1890,19 @@ function updateCamera(dt) {
     const o = LMS[RS.stop].orbit; RS.orbitA += dt * .045; const a = RS.orbitA + RS.yaw; pos = [o[0] + cos(a) * o[3], o[1] + o[4], o[2] + sin(a) * o[3]]; pos[1] = max(pos[1], groundY(pos[0], pos[2]) + 14); dir = vnorm(vsub([o[0], o[1], o[2]], pos)); dir = vnorm([dir[0], dir[1] + RS.pitch * .5, dir[2]]); fov = 50; near = 1;
   } else {
     const F = RS.free, cp = cos(F.pitch); dir = [sin(F.yaw) * cp, sin(F.pitch), cos(F.yaw) * cp]; const sp = (KEYS.ShiftLeft || KEYS.ShiftRight ? 160 : 32) * dt, rt = [cos(F.yaw), 0, -sin(F.yaw)];
-    const mv = (KEYS.KeyW ? 1 : 0) - (KEYS.KeyS ? 1 : 0), st = (KEYS.KeyA ? 1 : 0) - (KEYS.KeyD ? 1 : 0), ud = (KEYS.KeyE ? 1 : 0) - (KEYS.KeyQ ? 1 : 0);
+    const mv = (KEYS.KeyW ? 1 : 0) - (KEYS.KeyS ? 1 : 0) + TOUCH.mv, st = (KEYS.KeyA ? 1 : 0) - (KEYS.KeyD ? 1 : 0) + TOUCH.st, ud = (KEYS.KeyE ? 1 : 0) - (KEYS.KeyQ ? 1 : 0);
     F.p = vadd(F.p, vadd(vadd(vmul(dir, mv * sp), vmul(rt, st * sp)), [0, ud * sp, 0])); F.p[1] = max(F.p[1], max(groundY(F.p[0], F.p[2]), 0) + 1.7); F.p[0] = clamp(F.p[0], -3500, 3500); F.p[2] = clamp(F.p[2], -3500, 3500); F.p[1] = min(F.p[1], 2500); pos = F.p; fov = 62; near = .3;
   }
+  if (R.touch && canvas.width < canvas.height) fov = min(98, fov + 28 * min(1, (1 - canvas.width / canvas.height) / .5));   // portrait phone: widen, or the view is a 36 degree slit
   CAM.pos = pos; CAM.view = m4.look(pos, vadd(pos, dir), up); CAM.fov = fov; CAM.proj = m4.persp(fov * D2R, canvas.width / canvas.height, near, 14000); CAM.dir = dir;
 }
 // ---- input
-const KEYS = {};
+const KEYS = {}, TOUCH = { mv: 0, st: 0 };
 function setQuality(q) { R.q = q; R.shValid = 0; toast('QUALITY · ' + QUAL[q].name); }
-addEventListener('keydown', e => {
-  KEYS[e.code] = 1; if (e.repeat) return; const c = e.code;
-  if (c === 'Space') { RS.paused = !RS.paused; toast(RS.paused ? 'PAUSED' : 'RIDE'); e.preventDefault(); }
+addEventListener('keydown', e => { KEYS[e.code] = 1; if (e.repeat) return; if (e.code === 'Space') e.preventDefault(); act(e.code); });
+// one action table for keys and for the on-screen touch buttons
+function act(c) {
+  if (c === 'Space') { RS.paused = !RS.paused; toast(RS.paused ? 'PAUSED' : 'RIDE'); }
   else if (c === 'ArrowRight' || c === 'BracketRight') jumpTo(RS.stop + 1); else if (c === 'ArrowLeft' || c === 'BracketLeft') jumpTo(RS.stop - 1);
   else if (c === 'Digit1' || c === 'Digit2' || c === 'Digit3') setQuality(+c[5]);
   else if (c === 'KeyV') { if (RS.view === 'free') RS.view = 'rider'; else RS.view = VIEWS[(VIEWS.indexOf(RS.view) + 1) % 3]; RS.yaw = RS.pitch = 0; toast(RS.view.toUpperCase() + ' VIEW'); }
@@ -1881,7 +1910,8 @@ addEventListener('keydown', e => {
   else if (c === 'KeyT') { RS.todFrozen = RS.todFrozen === null ? todAtS(RS.s) : null; toast(RS.todFrozen === null ? 'TIME FLOWS' : 'TIME FROZEN'); }
   else if (c === 'KeyM') { RS.sound = !RS.sound; if (typeof sndToggle === 'function') sndToggle(RS.sound); toast(RS.sound ? 'SOUND ON' : 'SOUND OFF'); }
   else if (c === 'KeyH') { RS.hidden = !RS.hidden; document.body.classList.toggle('hide', RS.hidden); }
-});
+  if (typeof barSync === 'function') barSync();
+}
 addEventListener('keyup', e => { KEYS[e.code] = 0; });
 let drag = false, lx = 0, ly = 0;
 function lookBy(dx, dy) { if (RS.view === 'free') { RS.free.yaw -= dx * .0032; RS.free.pitch = clamp(RS.free.pitch - dy * .0032, -1.5, 1.5); } else { RS.yaw = clamp(RS.yaw + dx * .0032, -2.6, 2.6); RS.pitch = clamp(RS.pitch - dy * .0032, -1.2, 1.2); RS.lookIdle = 0; } }
@@ -1954,6 +1984,76 @@ function sndUpdate(dt, f, tod) {
   set(SND.insect.g.gain, near(9, 300) * .012 * (.5 + .5 * sin(now * .9)));
   if (hudShow && SND.last !== RS.stop) { SND.last = RS.stop; sndMotif(RS.stop); } if (!hudShow && SND.last > 0 && RS.stop !== SND.last) SND.last = -1;
 }
+// ===================================================================== touch: phones and tablets, no keyboard needed
+// Everything here is inert on a desktop: the bar, stick and hit strip are display:none until body has the class "touch".
+let barTimer = 0;
+function barSync() {
+  const free = RS.view === 'free'; document.body.classList.toggle('free', free);
+  for (const b of document.querySelectorAll('#bar .tb')) {
+    const a = b.dataset.a;
+    if (a === 'Space') { b.textContent = RS.paused ? 'RIDE' : 'PAUSE'; b.classList.toggle('on', RS.paused); }
+    else if (a === 'KeyV') b.textContent = free ? 'VIEW' : RS.view.toUpperCase();
+    else if (a === 'KeyF') b.classList.toggle('on', free);
+    else if (a === 'KeyT') b.classList.toggle('on', RS.todFrozen !== null);
+    else if (a === 'KeyM') b.classList.toggle('on', !!RS.sound);
+    else if (a === 'KeyH') b.classList.toggle('on', !!RS.hidden);
+    else if (a === 'Q') b.textContent = 'Q' + R.q;
+  }
+  if (!free) { TOUCH.mv = TOUCH.st = 0; KEYS.KeyE = KEYS.KeyQ = 0; }
+}
+function barShow() { document.body.classList.remove('barhide'); clearTimeout(barTimer); barTimer = setTimeout(() => document.body.classList.add('barhide'), 4000); }
+function touchOn() {
+  if (R.touch) return; R.touch = 1; document.body.classList.add('touch'); R.q = 1; R.shValid = 0; barSync(); barShow();   // start at LOW; the quality button can raise it
+}
+(function () {
+  const np = { passive: false }, stop = e => { e.preventDefault(); };
+  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  if ((navigator.maxTouchPoints || 0) > 0 || coarse) touchOn();
+  addEventListener('touchstart', () => { touchOn(); barShow(); if (typeof sndStart === 'function') sndStart(); barSync(); }, { capture: true, passive: true });
+  addEventListener('touchend', () => { if (typeof sndStart === 'function') sndStart(); }, { capture: true, passive: true });   // iOS unlocks audio on touchend
+  // no scroll, pinch zoom, double-tap zoom, long-press menu
+  document.addEventListener('touchmove', stop, np); document.addEventListener('gesturestart', stop, np); document.addEventListener('gesturechange', stop, np);
+  document.addEventListener('dblclick', stop, np); canvas.addEventListener('contextmenu', stop);
+  // bar buttons
+  for (const b of document.querySelectorAll('#bar .tb')) {
+    const go = e => { e.preventDefault(); e.stopPropagation(); const a = b.dataset.a; if (a === 'Q') setQuality(R.q % 3 + 1); else act(a); if (a === 'KeyF' && RS.view === 'free') { const F = RS.free, d = CAM.dir; F.p = [F.p[0] - d[0] * 5, F.p[1] + 3, F.p[2] - d[2] * 5]; toast('FREE FLIGHT · STICK MOVES · DRAG LOOKS'); } barSync(); barShow(); };   // entering free flight steps up and back, out of the rider's own seat
+    b.addEventListener('touchstart', go, np); b.addEventListener('click', go);
+  }
+  // hold buttons (up / down in free flight)
+  for (const b of document.querySelectorAll('#ud .tb')) {
+    const set = v => e => { e.preventDefault(); e.stopPropagation(); KEYS[b.dataset.h] = v; b.classList.toggle('on', !!v); barShow(); };
+    b.addEventListener('touchstart', set(1), np); b.addEventListener('touchend', set(0), np); b.addEventListener('touchcancel', set(0), np);
+  }
+  // left-thumb stick: forward/back and strafe, analogue, up to twice the keyboard speed at full throw
+  const stk = $('stk'), knob = stk.firstChild; let sid = null;
+  const stickAt = t => { const r = stk.getBoundingClientRect(); let x = (t.clientX - r.left - r.width / 2) / (r.width / 2), y = (t.clientY - r.top - r.height / 2) / (r.height / 2); const l = hypot(x, y); if (l > 1) { x /= l; y /= l; } TOUCH.mv = -y * 2; TOUCH.st = -x * 2; knob.style.transform = 'translate(' + (x * 36) + 'px,' + (y * 36) + 'px)'; };
+  const stickOff = () => { sid = null; TOUCH.mv = TOUCH.st = 0; knob.style.transform = ''; };
+  stk.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); const t = e.changedTouches[0]; sid = t.identifier; stickAt(t); barShow(); }, np);
+  stk.addEventListener('touchmove', e => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === sid) stickAt(t); }, np);
+  const se = e => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === sid) stickOff(); };
+  stk.addEventListener('touchend', se, np); stk.addEventListener('touchcancel', se, np);
+  // one finger on the canvas looks around; same lookBy and the same ease-back as the mouse
+  let lid = null, tx = 0, ty = 0;
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); if (lid !== null) return; const t = e.changedTouches[0]; lid = t.identifier; tx = t.clientX; ty = t.clientY; drag = true; }, np);
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === lid) { lookBy((t.clientX - tx) * 1.6, (t.clientY - ty) * 1.6); tx = t.clientX; ty = t.clientY; } }, np);
+  const le = e => { for (const t of e.changedTouches) if (t.identifier === lid) { lid = null; drag = false; } };
+  canvas.addEventListener('touchend', le); canvas.addEventListener('touchcancel', le);
+  // tap near a tick of the progress line: jump to that landmark
+  const ph = $('ph'); let px0 = 0;
+  ph.addEventListener('touchstart', e => { e.preventDefault(); px0 = e.changedTouches[0].clientX; }, np);
+  ph.addEventListener('touchend', e => {
+    e.preventDefault(); const x = e.changedTouches[0].clientX; if (abs(x - px0) > 12) return; let best = 0, bd = 32;
+    for (let k = 1; k <= 10; k++) { const el = $('tk' + k); if (!el) continue; const r = el.getBoundingClientRect(), d = abs(r.left - x); if (d < bd) { bd = d; best = k; } }
+    if (best) { if (RS.view === 'free') act('KeyF'); jumpTo(best); barSync(); }
+  }, np);
+  window.__touch = () => ({ touch: !!R.touch, barHidden: document.body.classList.contains('barhide'), free: document.body.classList.contains('free'), mv: TOUCH.mv, st: TOUCH.st, canvas: [canvas.width, canvas.height], css: [innerWidth, innerHeight], scrollY: scrollY, vv: window.visualViewport ? visualViewport.scale : 1,
+    buttons: [...document.querySelectorAll('#bar .tb')].map(b => { const r = b.getBoundingClientRect(); return { a: b.dataset.a, x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height, label: b.textContent }; }),
+    stick: (r => ({ x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }))(stk.getBoundingClientRect()),
+    ud: [...document.querySelectorAll('#ud .tb')].map(b => { const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height }; }),
+    ticks: [...Array(10)].map((_, i) => { const r = $('tk' + (i + 1)).getBoundingClientRect(); return { x: r.left, y: r.top + 5 }; }),
+    cap: (r => ({ l: r.left, r: r.right, t: r.top, b: r.bottom, fs: parseFloat(getComputedStyle($('cap').querySelector('.s')).fontSize) }))($('cap').getBoundingClientRect()),
+    bar: (r => ({ l: r.left, r: r.right, t: r.top, b: r.bottom }))($('bar').getBoundingClientRect()) });
+})();
 // ===================================================================== verification hooks: fixed shots, state, track proof, frame time
 window.__shots = {}; const CLOSE = {};  // CLOSE[k] = {pos, look} filled in by the landmark builders
 function defineShots() {
@@ -1983,7 +2083,7 @@ window.__shot = name => new Promise(res => {
   R.shValid = 0; let n = 0; const wait = () => { if (++n < 5) requestAnimationFrame(wait); else res({ s: Math.round(RS.s), stop: RS.stop, cam: CAM.pos.map(v => Math.round(v)), tris: Math.round(R.stats.tris), sh: Math.round(R.stats.shTris), calls: R.stats.calls, lights: R.stats.lights }); }; requestAnimationFrame(wait);
 });
 window.__auto = on => { RS.auto = on !== false; RS.fixCam = null; RS.todOverride = null; RS.fw = 0; document.body.classList.remove('shot'); if (!on) { RS.auto = true; } RS.lap = 1; RS.t = rideTimeAt(TR.mark.lm1 - 100); return true; };
-window.__state = () => ({ t: RS.t, s: RS.s, stop: RS.stop, paused: RS.paused, view: RS.view, todFrozen: RS.todFrozen !== null, sound: RS.sound, hidden: RS.hidden, quality: R.q, lookYaw: RS.yaw, cam: CAM.pos.slice(), camAboveGround: CAM.pos[1] - max(0, groundY(CAM.pos[0], CAM.pos[2])), speed: RS.speed, w: R.w, h: R.h });
+window.__state = () => ({ t: RS.t, s: RS.s, stop: RS.stop, paused: RS.paused, view: RS.view, todFrozen: RS.todFrozen !== null, sound: RS.sound, hidden: RS.hidden, quality: R.q, lookYaw: RS.yaw, freeYaw: RS.free.yaw, cam: CAM.pos.slice(), camAboveGround: CAM.pos[1] - max(0, groundY(CAM.pos[0], CAM.pos[2])), speed: RS.speed, w: R.w, h: R.h });
 // frame time: draw K frames back to back, then readPixels (which really waits for the GPU). cost per frame = (t(K2) - t(K1)) / (K2 - K1)
 window.__perf = async () => {
   const px = new Uint8Array(4), out = { note: 'batched = (time of 12 frames - time of 2 frames)/10, each batch ended by readPixels; singleWithReadback = one frame + readPixels (upper bound, includes the sync round trip)', machine: navigator.userAgent, gpu: (() => { const e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : 'unknown'; })(), canvas: [canvas.width, canvas.height], results: [] };
